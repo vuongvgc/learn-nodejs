@@ -33,11 +33,25 @@ const url = require("url");
 /////////////////////////
 //////    SERVER    /////
 ///////////////////////
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
+const dataObject = JSON.parse(data);
+console.log(data);
+
 const server = http.createServer((req, res) => {
   console.log(req.url);
   const pathName = req.url;
   if (pathName === "/" || pathName === "/overview") {
     res.end("This is overView");
+  } else if (pathName === "/api") {
+    fs.readFile("./dev-data/data.json", (error, data) => {
+      // const dataJS = JSON.parse(data);
+      // console.log(dataJS);
+      res.writeHead(200, {
+        "content-type": "application/json",
+      });
+      res.end(data);
+    });
+    // res.end("API");
   } else if (pathName === "/product") {
     res.end("this is page product");
   } else {
