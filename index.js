@@ -33,6 +33,30 @@ const url = require("url");
 /////////////////////////
 //////    SERVER    /////
 ///////////////////////
+const replaceTemplate = (temp, product) => {
+  let output = temp.replace(/{%IMAGE%}/g, product.image);
+  output = output.replace(/{%PRODUCT_NAME%}/g, product.productName);
+  output = output.replace(/{%QUANTITY%}/g, product.quantity);
+  output = output.replace(/{%PRICE%}/g, product.price);
+  output = output.replace(/{%ID%}/g, product.id);
+  if (!product.organic)
+    output = output.replace(/{%NOT_ORGANIC%}/g, "not-organic");
+  return output;
+};
+
+const templateOverview = fs.readFileSync(
+  `${__dirname}/templates/template-overview.html`,
+  "utf-8"
+);
+const templateProduct = fs.readFileSync(
+  `${__dirname}/templates/template-product.html`,
+  "utf-8"
+);
+const templateCard = fs.readFileSync(
+  `${__dirname}/templates/template-card.html`,
+  "utf-8"
+);
+
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
 const dataObject = JSON.parse(data);
 // console.log(data);
@@ -40,8 +64,21 @@ const dataObject = JSON.parse(data);
 const server = http.createServer((req, res) => {
   console.log(req.url);
   const pathName = req.url;
+  // OVERVIEW
   if (pathName === "/" || pathName === "/overview") {
-    res.end("This is overView");
+    res.writeHead(200, {
+      "content-type": "text/html",
+    });
+    const htmlCard = dataObject
+      .map((el) => replaceTemplate(templateCard, el))
+      .join(" ");
+    // console.log(htmlCard);
+    const output = templateOverview.replace(/{%PRODUCT_CARD%}/g, htmlCard);
+    res.end(output);
+    // PRODUCT
+  } else if (pathName === "/product") {
+    res.end("this is page product");
+    // API
   } else if (pathName === "/api") {
     fs.readFile("./dev-data/data.json", (error, data) => {
       // const dataJS = JSON.parse(data);
@@ -52,8 +89,6 @@ const server = http.createServer((req, res) => {
       res.end(data);
     });
     // res.end("API");
-  } else if (pathName === "/product") {
-    res.end("this is page product");
   } else {
     res.writeHead(404, {
       "Content-type": "text/html",
