@@ -39,6 +39,9 @@ const replaceTemplate = (temp, product) => {
   output = output.replace(/{%QUANTITY%}/g, product.quantity);
   output = output.replace(/{%PRICE%}/g, product.price);
   output = output.replace(/{%ID%}/g, product.id);
+  output = output.replace(/{%PRODUCT_FROM%}/g, product.from);
+  output = output.replace(/{%NUTRIENTS%}/g, product.nutrients);
+  output = output.replace(/{%DESCRIPTION%}/g, product.description);
   if (!product.organic)
     output = output.replace(/{%NOT_ORGANIC%}/g, "not-organic");
   return output;
@@ -62,10 +65,10 @@ const dataObject = JSON.parse(data);
 // console.log(data);
 
 const server = http.createServer((req, res) => {
-  console.log(req.url);
-  const pathName = req.url;
+  const { pathname, query } = url.parse(req.url, true);
+  // console.log(query);
   // OVERVIEW
-  if (pathName === "/" || pathName === "/overview") {
+  if (pathname === "/" || pathname === "/overview") {
     res.writeHead(200, {
       "content-type": "text/html",
     });
@@ -76,10 +79,13 @@ const server = http.createServer((req, res) => {
     const output = templateOverview.replace(/{%PRODUCT_CARD%}/g, htmlCard);
     res.end(output);
     // PRODUCT
-  } else if (pathName === "/product") {
-    res.end("this is page product");
+  } else if (pathname === "/product") {
+    const productObj = dataObject[query.id];
+    const output = replaceTemplate(templateProduct, productObj);
+    res.writeHead(200, { "content-type": "text/html" });
+    res.end(output);
     // API
-  } else if (pathName === "/api") {
+  } else if (pathname === "/api") {
     fs.readFile("./dev-data/data.json", (error, data) => {
       // const dataJS = JSON.parse(data);
       // console.log(dataJS);
