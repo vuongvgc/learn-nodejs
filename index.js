@@ -6,6 +6,10 @@ const url = require("url");
 
 const replaceTemplate = require("./modules/replaceTemplate");
 
+// Third party modules
+
+const slugify = require("slugify");
+
 /////////////////////////
 //////     FILE    /////
 ///////////////////////
@@ -38,7 +42,6 @@ const replaceTemplate = require("./modules/replaceTemplate");
 /////////////////////////
 //////    SERVER    /////
 ///////////////////////
-
 const templateOverview = fs.readFileSync(
   `${__dirname}/templates/template-overview.html`,
   "utf-8"
@@ -55,6 +58,10 @@ const templateCard = fs.readFileSync(
 const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
 const dataObject = JSON.parse(data);
 // console.log(data);
+
+// console.log(slugify("vuong Do", { lower: true, replacement: "_" }));
+const slugs = dataObject.map((el) => slugify(el.productName, { lower: true }));
+console.log(slugs);
 
 const server = http.createServer((req, res) => {
   const { pathname, query } = url.parse(req.url, true);
