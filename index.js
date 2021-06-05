@@ -1,14 +1,14 @@
-const fs = require("fs");
-const http = require("http");
-const url = require("url");
+const fs = require('fs');
+const http = require('http');
+const url = require('url');
 
 // my own modules
 
-const replaceTemplate = require("./modules/replaceTemplate");
+const replaceTemplate = require('./modules/replaceTemplate');
 
 // Third party modules
 
-const slugify = require("slugify");
+const slugify = require('slugify');
 
 /////////////////////////
 //////     FILE    /////
@@ -44,64 +44,65 @@ const slugify = require("slugify");
 ///////////////////////
 const templateOverview = fs.readFileSync(
   `${__dirname}/templates/template-overview.html`,
-  "utf-8"
+  'utf-8'
 );
 const templateProduct = fs.readFileSync(
   `${__dirname}/templates/template-product.html`,
-  "utf-8"
+  'utf-8'
 );
 const templateCard = fs.readFileSync(
   `${__dirname}/templates/template-card.html`,
-  "utf-8"
+  'utf-8'
 );
 
-const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, "utf-8");
+const data = fs.readFileSync(`${__dirname}/dev-data/data.json`, 'utf-8');
 const dataObject = JSON.parse(data);
 // console.log(data);
 
 // console.log(slugify("vuong Do", { lower: true, replacement: "_" }));
 const slugs = dataObject.map((el) => slugify(el.productName, { lower: true }));
 console.log(slugs);
-
 const server = http.createServer((req, res) => {
   const { pathname, query } = url.parse(req.url, true);
   // console.log(query);
   // OVERVIEW
-  if (pathname === "/" || pathname === "/overview") {
+  if (pathname === '/' || pathname === '/overview') {
     res.writeHead(200, {
-      "content-type": "text/html",
+      'content-type': 'text/html',
     });
     const htmlCard = dataObject
       .map((el) => replaceTemplate(templateCard, el))
-      .join(" ");
+      .join(' ');
     // console.log(htmlCard);
     const output = templateOverview.replace(/{%PRODUCT_CARD%}/g, htmlCard);
     res.end(output);
     // PRODUCT
-  } else if (pathname === "/product") {
+  } else if (pathname === '/product') {
     const productObj = dataObject[query.id];
     const output = replaceTemplate(templateProduct, productObj);
-    res.writeHead(200, { "content-type": "text/html" });
+    res.writeHead(200, {
+      'content-type': 'text/html',
+    });
     res.end(output);
     // API
-  } else if (pathname === "/api") {
-    fs.readFile("./dev-data/data.json", (error, data) => {
+  } else if (pathname === '/api') {
+    fs.readFile('./dev-data/data.json', (error, data) => {
       // const dataJS = JSON.parse(data);
       // console.log(dataJS);
       res.writeHead(200, {
-        "content-type": "application/json",
+        'content-type': 'application/json',
       });
       res.end(data);
     });
     // res.end("API");
   } else {
     res.writeHead(404, {
-      "Content-type": "text/html",
-      "my-own-header": "Hello World",
+      'Content-type': 'text/html',
+      'my-own-header': 'Hello World',
     });
-    res.end("<h1>Page not found</h1>");
+    res.end('<h1>Page not found</h1>');
   }
 });
-server.listen(8000, "127.0.0.1", () => {
-  console.log("The server is running");
+server.listen(8000, '127.0.0.1', () => {
+  console.log('The server is running');
 });
